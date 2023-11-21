@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "669654098015",
+    "project_id": "whitefihes",
+    "storage_bucket": "whitefihes.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:669654098015:android:61fe29d50ec72cc3c03bea",
+        "android_client_info": {
+          "package_name": "com.ltechc.white_fishes2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAMCmkJFfszU91YEFn-xWxFVHXH3Eggv5A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
