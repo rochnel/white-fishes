@@ -1,6 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:http/http.dart' as http;
 import 'package:get/get.dart';
 import 'package:badges/badges.dart' as badge;
 import 'package:white_fishes2/src/controller/cart_controller.dart';
@@ -12,6 +13,80 @@ class AdressePage extends StatelessWidget {
   double? total;
   final productController = Get.put(ProductController());
   final cartController = Get.put(CartController());
+
+
+
+
+  final TextEditingController nomController = TextEditingController();
+  final TextEditingController telController = TextEditingController();
+  final TextEditingController adresseController = TextEditingController();
+
+
+  void sendOrderToAPI() async {
+    Get.dialog(
+      Center(child: CircularProgressIndicator()),
+      barrierDismissible: false,
+    );
+
+    String nom = nomController.text;
+    String tel = telController.text;
+    String adresse = adresseController.text;
+
+    var orderData = {
+      "client": {
+        "tel": tel,
+        "email": "toto@gmail.com", 
+        "localisation": adresse,
+        "name": nom,
+        "bills": cartController.cart.map((product) {
+          return {
+            "amount": product.price,
+            "fishList": [
+              {
+                "unit_price": product.price,
+                "quantity": product.quantity,
+                "name": product.title,
+              }
+            ]
+          };
+        }).toList()
+      }
+    };
+
+    var apiUrl = 'http://localhost:8071/deliveryWhiteFish/email';
+
+    try {
+      print(orderData);
+      var response = await http.post(
+        Uri.parse(apiUrl),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(orderData),
+      );
+
+      Get.back(); // Fermer le loader
+
+      if (response.statusCode == 200) {
+        Get.snackbar('Succès', 'Commande envoyée avec succès');
+      } else {
+        print('Erreur lors de l\'envoi de la commande: ${response.statusCode}');
+        Get.back(); 
+        Get.snackbar('Erreur', 'Erreur lors de l\'envoi de la commande', backgroundColor: Colors.red, colorText: Colors.white);
+      }
+    } catch (e) {
+      print('Erreur lors de l\'envoi de la commande: $e');
+      Get.back(); 
+      Get.snackbar('Erreur', 'Erreur lors de l\'envoi de la commande', backgroundColor: Colors.red, colorText: Colors.white);
+      
+    }
+  }
+
+
+
+
+
+
   @override
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height * (1 / 852.0);
@@ -83,7 +158,7 @@ class AdressePage extends StatelessWidget {
                   SizedBox(
                     height: 20,
                   ),
-                  Text("Montant Total :1000 FCFA"),
+                  Text("Frais de livraison  :1000 FCFA"),
                   SizedBox(
                     height: 20,
                   ),
@@ -101,12 +176,14 @@ class AdressePage extends StatelessWidget {
             Padding(
               padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
               child: TextField(
+                controller: nomController,
                 decoration: InputDecoration(labelText: 'Entrez votre nom'),
               ),
             ),
             Padding(
               padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
               child: TextField(
+                controller: telController,
                 decoration: InputDecoration(
                     labelText: 'Entrez votre numéro de téléphone'),
               ),
@@ -114,6 +191,7 @@ class AdressePage extends StatelessWidget {
             Padding(
               padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
               child: TextField(
+                controller: adresseController,
                 decoration: InputDecoration(labelText: 'Entrez votre adresse'),
               ),
             ),
@@ -121,7 +199,7 @@ class AdressePage extends StatelessWidget {
         padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
         child: ElevatedButton(
           onPressed: () {
-            // Action à effectuer lorsqu'on appuie sur le bouton Envoyer
+           sendOrderToAPI();
           },
           style: ElevatedButton.styleFrom(
             primary: Colors.red, // Couleur rouge pour le bouton

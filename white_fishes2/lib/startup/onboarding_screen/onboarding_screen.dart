@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import '../../src/view/product_page.dart';
 import '../nav.dart';
 import 'onboarding_content.dart';
@@ -17,10 +18,11 @@ class _OnboardingState extends State<OnboardingScreen> {
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   int currentPage = 0;
   late PageController pageController;
-
+GetStorage box = GetStorage();
 
   @override
   void initState(){
+    box.write('isOnbording', 'true');
     super.initState();
     pageController = PageController(
       initialPage: 0,
