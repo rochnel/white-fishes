@@ -70,4 +70,11 @@ void removeOneComplement(double price){
       update(); // Update the UI
     }
   }
+
+   void clearCart() {
+    cart.clear();
+    totalQuantity.value = 0;
+    totalPrice.value = 0.0;
+    update();
+  }
 }

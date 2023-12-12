@@ -7,20 +7,17 @@ import 'package:badges/badges.dart' as badge;
 import 'package:white_fishes2/src/controller/cart_controller.dart';
 import 'package:white_fishes2/src/controller/product_controller.dart';
 import 'package:white_fishes2/src/view/add_to_cart_page.dart';
+import 'package:white_fishes2/src/view/product_page.dart';
 
 class AdressePage extends StatelessWidget {
-  AdressePage(this.total);
-  double? total;
+  AdressePage(this.total, this.plantaint, this.pomme, this.miondo);
+  double? total, plantaint, pomme, miondo;
   final productController = Get.put(ProductController());
   final cartController = Get.put(CartController());
-
-
-
 
   final TextEditingController nomController = TextEditingController();
   final TextEditingController telController = TextEditingController();
   final TextEditingController adresseController = TextEditingController();
-
 
   void sendOrderToAPI() async {
     Get.dialog(
@@ -35,25 +32,31 @@ class AdressePage extends StatelessWidget {
     var orderData = {
       "client": {
         "tel": tel,
-        "email": "toto@gmail.com", 
+        "email": "toto@gmail.com",
         "localisation": adresse,
         "name": nom,
-        "bills": cartController.cart.map((product) {
-          return {
-            "amount": product.price,
-            "fishList": [
-              {
+        "bills": [
+          {
+            "amount": cartController.totalPrice.value + 1000,
+            "complements": [
+              {"name": "plantain", "price": plantaint},
+              {"name": "pomme", "price": pomme},
+              {"name": "miondo", "price": miondo}
+            ],
+            "fishList": cartController.cart.map((product) {
+              return {
                 "unit_price": product.price,
                 "quantity": product.quantity,
                 "name": product.title,
-              }
-            ]
-          };
-        }).toList()
+              };
+            }).toList()
+          }
+        ]
       }
     };
 
-    var apiUrl = 'http://localhost:8071/deliveryWhiteFish/email';
+    var apiUrl =
+        'http://51.195.137.143:8080/whitefish-v0/deliveryWhiteFish/email';
 
     try {
       print(orderData);
@@ -68,24 +71,23 @@ class AdressePage extends StatelessWidget {
       Get.back(); // Fermer le loader
 
       if (response.statusCode == 200) {
-        Get.snackbar('Succès', 'Commande envoyée avec succès');
+        Get.snackbar('Succès', 'Commande envoyée avec succès',
+            backgroundColor: Colors.green, colorText: Colors.white);
+        cartController.clearCart();
+        Get.off(ProductPage());
       } else {
         print('Erreur lors de l\'envoi de la commande: ${response.statusCode}');
-        Get.back(); 
-        Get.snackbar('Erreur', 'Erreur lors de l\'envoi de la commande', backgroundColor: Colors.red, colorText: Colors.white);
+        Get.back();
+        Get.snackbar('Erreur', 'Erreur lors de l\'envoi de la commande',
+            backgroundColor: Colors.red, colorText: Colors.white);
       }
     } catch (e) {
       print('Erreur lors de l\'envoi de la commande: $e');
-      Get.back(); 
-      Get.snackbar('Erreur', 'Erreur lors de l\'envoi de la commande', backgroundColor: Colors.red, colorText: Colors.white);
-      
+      Get.back();
+      Get.snackbar('Erreur', 'Erreur lors de l\'envoi de la commande',
+          backgroundColor: Colors.red, colorText: Colors.white);
     }
   }
-
-
-
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -154,7 +156,8 @@ class AdressePage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Text('Montant Total :${cartController.totalPrice.value.toStringAsFixed(2)} FCFA'),
+                  Text(
+                      'Montant Total :${cartController.totalPrice.value.toStringAsFixed(2)} FCFA'),
                   SizedBox(
                     height: 20,
                   ),
@@ -169,44 +172,53 @@ class AdressePage extends StatelessWidget {
                   SizedBox(
                     height: 25,
                   ),
-                  Text("Total :${(cartController.totalPrice.value+1000).toStringAsFixed(2)} FCFA"),
+                  Text(
+                      "Total :${(cartController.totalPrice.value + 1000).toStringAsFixed(2)} FCFA"),
                 ],
               ),
             ),
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-              child: TextField(
-                controller: nomController,
-                decoration: InputDecoration(labelText: 'Entrez votre nom'),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-              child: TextField(
-                controller: telController,
-                decoration: InputDecoration(
-                    labelText: 'Entrez votre numéro de téléphone'),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-              child: TextField(
-                controller: adresseController,
-                decoration: InputDecoration(labelText: 'Entrez votre adresse'),
-              ),
-            ),
-                Padding(
-        padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-        child: ElevatedButton(
-          onPressed: () {
-           sendOrderToAPI();
-          },
-          style: ElevatedButton.styleFrom(
-            primary: Colors.red, // Couleur rouge pour le bouton
-          ),
-          child: Text('Envoyer'),
-        ),
-          ),
+          Padding(
+  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+  child: TextField(
+    controller: nomController,
+    decoration: InputDecoration(labelText: 'Entrez votre nom'),
+  ),
+),
+Padding(
+  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+  child: TextField(
+    controller: telController,
+    decoration: InputDecoration(
+        labelText: 'Entrez votre numéro de téléphone'),
+  ),
+),
+Padding(
+  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+  child: TextField(
+    controller: adresseController,
+    decoration: InputDecoration(labelText: 'Entrez votre adresse'),
+  ),
+),
+Padding(
+  padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+  child: ElevatedButton(
+    onPressed: () {
+      if (nomController.text.isNotEmpty &&
+          telController.text.isNotEmpty &&
+          adresseController.text.isNotEmpty) {
+        // Tous les champs sont remplis, on peut envoyer la commande à l'API
+        sendOrderToAPI();
+      } else {
+         Get.snackbar('Erreur', 'Tous les champs sont obligatoires',
+            backgroundColor: Colors.red, colorText: Colors.white);   }
+    },
+    style: ElevatedButton.styleFrom(
+      primary: Colors.red, // Couleur rouge pour le bouton
+    ),
+    child: Text('Envoyer la commande'),
+  ),
+),
+
           ],
         ),
       ),

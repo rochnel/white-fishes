@@ -544,7 +544,10 @@ class _CommandePageState extends State<CommandePage> {
                                 ElevatedButton(
                                   onPressed: () {
                                     Get.to(AdressePage(
-                                        cartController.totalPrice.value));
+                                        cartController.totalPrice.value,
+                                        complementList[0].price,
+                                        complementList[2].price,
+                                        complementList[1].price));
                                   },
                                   style: ElevatedButton.styleFrom(
                                     primary:
