@@ -1,5 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.ltechc.white_fishes2">
+   <uses-permission android:name="android.permission.INTERNET" />
+
    <application
         android:label="white fishes"
         android:name="${applicationName}"
